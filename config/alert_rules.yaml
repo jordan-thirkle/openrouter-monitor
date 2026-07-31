@@ -1,0 +1,107 @@
+# Alert Rules Configuration
+# Define thresholds and conditions for triggering alerts
+#
+# Each rule has:
+# - name: unique identifier
+# - description: human-readable description
+# - metric: which metric to evaluate (daily_cost, hourly_cost, project_cost, model_cost, anomaly_score)
+# - condition: comparison operator (gt, gte, lt, lte, eq, ne)
+# - threshold: numeric threshold value
+# - severity: P1 (critical), P2 (high), P3 (medium), P4 (low)
+# - cooldown_hours: minimum hours between alerts for this rule (default: 4)
+# - channels: list of channels to deliver to (telegram, stdout)
+# - enabled: whether the rule is active
+
+rules:
+  - name: "daily_cost_breach"
+    description: "Total daily cost exceeds threshold"
+    metric: "daily_cost"
+    condition: "gt"
+    threshold: 100.0  # USD per day
+    severity: "P1"
+    cooldown_hours: 4
+    channels: ["telegram", "stdout"]
+    enabled: true
+
+  - name: "hourly_cost_spike"
+    description: "Hourly cost spike detected"
+    metric: "hourly_cost"
+    condition: "gt"
+    threshold: 25.0  # USD per hour
+    severity: "P2"
+    cooldown_hours: 4
+    channels: ["telegram", "stdout"]
+    enabled: true
+
+  - name: "project_cost_overrun"
+    description: "Single project cost exceeds daily budget"
+    metric: "project_cost"
+    condition: "gt"
+    threshold: 50.0  # USD per project per day
+    severity: "P2"
+    cooldown_hours: 4
+    channels: ["telegram", "stdout"]
+    enabled: true
+
+  - name: "model_cost_anomaly"
+    description: "Model cost significantly higher than baseline"
+    metric: "model_cost"
+    condition: "gt"
+    threshold: 30.0  # USD per model per day
+    severity: "P3"
+    cooldown_hours: 4
+    channels: ["stdout"]
+    enabled: true
+
+  - name: "anomaly_detected_high"
+    description: "High severity anomaly detected by anomaly detector"
+    metric: "anomaly_score"
+    condition: "gte"
+    threshold: 0.8  # anomaly score 0-1
+    severity: "P1"
+    cooldown_hours: 2
+    channels: ["telegram", "stdout"]
+    enabled: true
+
+  - name: "anomaly_detected_medium"
+    description: "Medium severity anomaly detected"
+    metric: "anomaly_score"
+    condition: "gte"
+    threshold: 0.5
+    severity: "P3"
+    cooldown_hours: 4
+    channels: ["stdout"]
+    enabled: true
+
+  - name: "token_usage_spike"
+    description: "Token usage spike (potential runaway process)"
+    metric: "hourly_tokens"
+    condition: "gt"
+    threshold: 500000  # tokens per hour
+    severity: "P2"
+    cooldown_hours: 4
+    channels: ["telegram", "stdout"]
+    enabled: true
+
+  - name: "cost_increase_rate"
+    description: "Cost increasing rapidly compared to previous period"
+    metric: "cost_growth_rate"
+    condition: "gt"
+    threshold: 2.0  # 2x growth rate
+    severity: "P2"
+    cooldown_hours: 4
+    channels: ["telegram", "stdout"]
+    enabled: true
+
+# Telegram configuration (loaded from settings.yaml)
+# telegram:
+#   bot_token: "YOUR_BOT_TOKEN"
+#   chat_id: "YOUR_CHAT_ID"
+#   parse_mode: "HTML"
+#   disable_web_page_preview: true
+
+# Default cooldown if not specified per rule
+default_cooldown_hours: 4
+
+# Default channels if not specified per rule
+default_channels: ["telegram", "stdout"]

@@ -10,9 +10,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from src.api.client import OpenRouterClient, UsageRecord
+from src.api.client import OpenRouterClient, RawUsageRecord, UsageRecord, normalize_usage_records
 from src.ingestion.database import (
     IngestionResult as DBIngestionResult,
+    count_records,
     get_last_cursor,
     get_latest_record_time,
     init_db,
@@ -40,9 +41,9 @@ event_queue: asyncio.Queue = asyncio.Queue()
 class IngestionPipeline:
     """Ingestion pipeline for OpenRouter usage data.
     
-    Fetches usage records from OpenRouter API, stores them idempotently
-    in SQLite (upsert on model, project, date_hour), and emits
-    usage.ingested events.
+    Fetches usage records from OpenRouter API, normalizes to hourly buckets,
+    stores them idempotently in SQLite (upsert on model, project, date_hour),
+    and emits usage.ingested events.
     """
     
     def __init__(
@@ -51,7 +52,7 @@ class IngestionPipeline:
         event_queue: Optional[asyncio.Queue] = None,
     ):
         self.client = client
-        self._event_queue = event_queue or event_queue
+        self._event_queue = event_queue if event_queue is not None else globals()["event_queue"]
         init_db()
     
     def get_last_cursor(self) -> Optional[datetime]:
@@ -64,8 +65,8 @@ class IngestionPipeline:
     async def run_incremental(self) -> IngestionResult:
         """Run incremental ingestion since last cursor.
         
-        Fetches usage from the last cursor to now, upserts records,
-        updates cursor, and emits usage.ingested event.
+        Fetches usage from the last cursor to now, normalizes to hourly buckets,
+        upserts records, updates cursor, and emits usage.ingested event.
         """
         start_time = datetime.utcnow()
         last_cursor = self.get_last_cursor()
@@ -76,9 +77,9 @@ class IngestionPipeline:
         
         end_time = start_time
         
-        # Fetch usage from API
+        # Fetch raw usage from API
         try:
-            records = await self.client.get_usage(last_cursor, end_time)
+            raw_records = await self.client.get_usage(last_cursor, end_time)
         except Exception as e:
             return IngestionResult(
                 records_processed=0,
@@ -90,8 +91,11 @@ class IngestionPipeline:
                 errors=[f"API fetch failed: {e}"],
             )
         
+        # Normalize to hourly buckets
+        normalized_records = normalize_usage_records(raw_records)
+        
         # Upsert records
-        inserted, updated = upsert_usage_records(records)
+        inserted, updated = upsert_usage_records(normalized_records)
         
         # Determine new cursor (end of the window we just processed)
         new_cursor = end_time
@@ -100,7 +104,7 @@ class IngestionPipeline:
         end_time_actual = datetime.utcnow()
         
         result = IngestionResult(
-            records_processed=len(records),
+            records_processed=len(normalized_records),
             records_inserted=inserted,
             records_updated=updated,
             start_time=start_time,
@@ -117,16 +121,16 @@ class IngestionPipeline:
     async def run_full(self, days: int) -> IngestionResult:
         """Run full ingestion for the specified number of days back.
         
-        Fetches usage from (now - days) to now, upserts records,
-        updates cursor to now, and emits usage.ingested event.
+        Fetches usage from (now - days) to now, normalizes to hourly buckets,
+        upserts records, updates cursor to now, and emits usage.ingested event.
         """
         start_time = datetime.utcnow()
         end_time = start_time
         window_start = end_time - timedelta(days=days)
         
-        # Fetch usage from API
+        # Fetch raw usage from API
         try:
-            records = await self.client.get_usage(window_start, end_time)
+            raw_records = await self.client.get_usage(window_start, end_time)
         except Exception as e:
             return IngestionResult(
                 records_processed=0,
@@ -138,8 +142,11 @@ class IngestionPipeline:
                 errors=[f"API fetch failed: {e}"],
             )
         
+        # Normalize to hourly buckets
+        normalized_records = normalize_usage_records(raw_records)
+        
         # Upsert records
-        inserted, updated = upsert_usage_records(records)
+        inserted, updated = upsert_usage_records(normalized_records)
         
         # Update cursor to end of window
         new_cursor = end_time
@@ -148,7 +155,7 @@ class IngestionPipeline:
         end_time_actual = datetime.utcnow()
         
         result = IngestionResult(
-            records_processed=len(records),
+            records_processed=len(normalized_records),
             records_inserted=inserted,
             records_updated=updated,
             start_time=start_time,

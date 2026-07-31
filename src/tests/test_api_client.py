@@ -10,6 +10,7 @@ Tests that the client correctly handles:
 
 import asyncio
 import json
+import time
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
