@@ -80,7 +80,7 @@ class AlertRule:
         )
 
 
-@dataclass(frozen=True)
+@dataclass
 class Alert:
     """An alert that has been triggered."""
 
@@ -95,7 +95,7 @@ class Alert:
     metadata: Dict[str, Any] = field(default_factory=dict)
     # Delivery tracking
     delivered: bool = False
-    delivery_results: Dict[AlertChannel, bool] = field(default_factory=dict)
+    delivery_results: Dict[AlertChannel, DeliveryResult] = field(default_factory=dict)
 
     @property
     def event_type(self) -> str:
@@ -115,7 +115,7 @@ class Alert:
             "timestamp": self.timestamp.isoformat(),
             "metadata": self.metadata,
             "delivered": self.delivered,
-            "delivery_results": {k.value: v for k, v in self.delivery_results.items()},
+            "delivery_results": {k.value: v.to_dict() if hasattr(v, 'to_dict') else str(v) for k, v in self.delivery_results.items()},
         }
 
 
@@ -128,6 +128,16 @@ class DeliveryResult:
     message: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
     error: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for serialization."""
+        return {
+            "channel": self.channel.value,
+            "success": self.success,
+            "message": self.message,
+            "timestamp": self.timestamp.isoformat(),
+            "error": self.error,
+        }
 
 
 @dataclass(frozen=True)

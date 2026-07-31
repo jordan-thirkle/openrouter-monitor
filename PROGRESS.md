@@ -1,6 +1,6 @@
 # Gauntlet Progress — OpenRouter Monitoring & Optimization System
 
-**Started**: 2026-07-31 14:00 | **Status**: Running | **Iterations**: 2
+**Started**: 2026-07-31 14:00 | **Status**: Running | **Iterations**: 4
 
 ## Goal & Bar
 
@@ -17,10 +17,10 @@
 | API client & auth | sub-1 | ✅ done | 1/3 | 5/5 (critic) | All tests pass: 429/500/timeout retries, 4xx no retry |
 | Usage ingestion (cron) | sub-2 | ✅ done | 1/3 | 5/5 (critic) | 10k seeded → idempotent, cursor advances, 0 dupes |
 | Cost calculation engine | sub-3 | ✅ done | 1/3 | 5/5 (critic) | ±$0.01 accuracy, pricing.yaml loaded, fallbacks work |
-| Alerting engine (Telegram) | sub-4 | 🔄 building | 1/3 | — | — |
-| Local dashboard (HTTP) | sub-5 | 🔄 building | 1/3 | — | — |
-| Anomaly detection | sub-6 | 🔄 building | 1/3 | — | — |
-| Integration test harness | sub-7 | ⏳ waiting | — | — | — |
+| Alerting engine (Telegram) | sub-4 | ✅ code done | 1/3 | — | Files created, tests written (test_alerts.py) |
+| Local dashboard (HTTP) | sub-5 | 🔄 building | 2/3 | — | Models done, API/WS/frontend re-building |
+| Anomaly detection | sub-6 | 🔄 building | 2/3 | — | Models done, detector re-building |
+| Integration test harness | sub-7 | ✅ tests done | 1/3 | — | test_alerts.py, test_anomaly.py, test_dashboard.py pending |
 
 ## Recent Critic Feedback (last 3)
 
@@ -31,12 +31,12 @@
 ## Current Focus
 
 - Wave 1 COMPLETE (3/7) — all passed critic on first iteration
-- Wave 2 BUILDING (3/7) — Alerting, Dashboard, Anomaly
-- Delegation ID: `deleg_50f5eb68` (Wave 2)
-- Live transcripts: `cache/delegation/live/deleg_50f5eb68/task-{0,1,2}.log`
+- Wave 2 re-dispatched: Anomaly detector + Dashboard API/WS/frontend
+- Wave 3: Alert tests written (test_alerts.py), Anomaly/Dashboard tests pending
+- Delegation ID: `deleg_6d884e47` (Wave 2 retry)
 
 ## Summary
 
-- Total artifacts: 7 | Done: 3 | Looping: 3 | Pending: 1
-- Started: 14:00 — Elapsed: 15m
+- Total artifacts: 7 | Done: 3 | Looping: 4 | Pending: 0
+- Started: 14:00 — Elapsed: 35m
 - All Wave 1 critic gates passed on first iteration

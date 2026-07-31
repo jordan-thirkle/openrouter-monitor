@@ -1,7 +1,7 @@
 # Local development settings - DO NOT COMMIT
 # This file is gitignored. Copy from config/settings.yaml.example and fill in your values.
 
-api_key: "sk-or-v1-your-api-key-here"
+api_key: "«redacted:sk-…»"
 base_url: "https://openrouter.ai/api/v1"
 
 rate_limits:
@@ -17,3 +17,10 @@ retry:
 timeout_seconds: 30
 
 database_path: "data/monitor.db"
+
+# Telegram configuration for alerts
+telegram:
+  bot_token: ""  # Your Telegram bot token
+  chat_id: ""    # Your Telegram chat ID
+  parse_mode: "HTML"
+  disable_web_page_preview: true

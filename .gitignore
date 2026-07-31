@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config (never commit secrets)
+config/settings.yaml
+
+# Database
+data/*.db
+data/*.db-journal
+data/cursor.txt
+data/alert_state.json
+
+# Logs
+*.log
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Delegation logs
+cache/delegation/
+
+# Build
+dist/
+build/
+*.egg-info/
