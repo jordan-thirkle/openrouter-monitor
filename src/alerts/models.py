@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
@@ -210,26 +211,78 @@ class AlertConfig:
 
 @dataclass
 class AlertState:
-    """Persistent state for alert deduplication."""
+    """Persistent state for alert deduplication - stored in SQLite."""
 
-    last_triggered: Dict[str, datetime] = field(default_factory=dict)  # rule_name -> timestamp
+    db_path: Path = field(default_factory=lambda: Path("data/alert_state.db"))
+
+    def __post_init__(self):
+        if str(self.db_path) == ":memory:":
+            self._db_target = ":memory:"
+            import sqlite3
+            self._connection = sqlite3.connect(":memory:")
+        else:
+            self.db_path = Path(self.db_path)
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            self._db_target = str(self.db_path)
+            self._connection = None
+        self._init_db()
+
+    def _connect(self):
+        import sqlite3
+        return self._connection or sqlite3.connect(self._db_target)
+
+    def _init_db(self) -> None:
+        import sqlite3
+        with self._connect() as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS alert_cooldowns (
+                    rule_name TEXT PRIMARY KEY,
+                    last_triggered TEXT NOT NULL
+                )
+            """)
+            conn.commit()
 
     def should_trigger(self, rule_name: str, cooldown_hours: int) -> bool:
         """Check if an alert should trigger based on cooldown."""
-        if rule_name not in self.last_triggered:
+        import sqlite3
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT last_triggered FROM alert_cooldowns WHERE rule_name = ?",
+                (rule_name,)
+            ).fetchone()
+        if not row:
             return True
-        elapsed = datetime.utcnow() - self.last_triggered[rule_name]
+        last = datetime.fromisoformat(row[0])
+        elapsed = datetime.utcnow() - last
         return elapsed.total_seconds() >= cooldown_hours * 3600
 
     def mark_triggered(self, rule_name: str) -> None:
         """Mark a rule as triggered now."""
-        self.last_triggered[rule_name] = datetime.utcnow()
+        import sqlite3
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO alert_cooldowns (rule_name, last_triggered) VALUES (?, ?)",
+                (rule_name, datetime.utcnow().isoformat())
+            )
+            conn.commit()
 
-    def to_dict(self) -> Dict[str, str]:
-        """Serialize to dictionary."""
-        return {k: v.isoformat() for k, v in self.last_triggered.items()}
+    def clear_cooldown(self, rule_name: str) -> bool:
+        """Manually clear cooldown for a rule."""
+        import sqlite3
+        with self._connect() as conn:
+            cursor = conn.execute("DELETE FROM alert_cooldowns WHERE rule_name = ?", (rule_name,))
+            conn.commit()
+            return cursor.rowcount > 0
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, str]) -> AlertState:
-        """Deserialize from dictionary."""
-        return cls(last_triggered={k: datetime.fromisoformat(v) for k, v in data.items()})
+    def close(self) -> None:
+        """Close any open connections - for SQLite this ensures no locks remain."""
+        if str(self.db_path) == ":memory:":
+            if self._connection is not None:
+                self._connection.close()
+                self._connection = None
+            return
+        try:
+            with self._connect() as conn:
+                conn.execute("PRAGMA wal_checkpoint(FULL)")
+        except Exception:
+            pass

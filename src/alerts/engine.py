@@ -37,7 +37,7 @@ class AlertEngineConfig:
 
     rules_file: Path = Path("config/alert_rules.yaml")
     settings_file: Optional[Path] = Path("config/settings.yaml")
-    state_file: Path = Path("data/alert_state.json")
+    state_file: Optional[Path] = Path("data/alert_state.db")  # Kept for backward compat, now uses SQLite
     event_queue: Optional[asyncio.Queue] = None
 
 
@@ -58,8 +58,9 @@ class AlertEngine:
         self._rules_by_name: Dict[str, AlertRule] = {}
         self._initialized = False
 
-    def _resolve_path(self, path: Path) -> Path:
+    def _resolve_path(self, path: Path | str) -> Path:
         """Resolve relative path to project root."""
+        path = Path(path)
         if path.is_absolute():
             return path
         project_root = Path(__file__).parent.parent.parent
@@ -82,16 +83,12 @@ class AlertEngine:
         # Build rules lookup
         self._rules_by_name = {rule.name: rule for rule in self._alert_config.rules}
 
-        # Load state
-        state_path = self._resolve_path(self.config.state_file)
-        if state_path.exists():
-            try:
-                with open(state_path, "r") as f:
-                    state_data = json.load(f)
-                self._state = AlertState.from_dict(state_data)
-                logger.info(f"Loaded alert state with {len(self._state.last_triggered)} rules")
-            except (json.JSONDecodeError, OSError) as e:
-                logger.warning(f"Failed to load alert state: {e}, starting fresh")
+        # AlertState now manages its own SQLite DB (no JSON file to load)
+        state_file = self.config.state_file or Path("data/alert_state.db")
+        resolved_state = self._resolve_path(state_file)
+        if str(state_file) == ":memory:":
+            resolved_state = Path(":memory:")
+        self._state = AlertState(db_path=resolved_state)
 
         # Initialize channel manager
         self._channel_manager = ChannelManager(self._alert_config)
@@ -100,14 +97,9 @@ class AlertEngine:
         logger.info(f"AlertEngine initialized with {len(self._rules_by_name)} rules")
 
     def _save_state(self) -> None:
-        """Persist alert state to disk."""
-        state_path = self._resolve_path(self.config.state_file)
-        state_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            with open(state_path, "w") as f:
-                json.dump(self._state.to_dict(), f, indent=2)
-        except OSError as e:
-            logger.error(f"Failed to save alert state: {e}")
+        """Persist alert state to disk - now handled by AlertState internally via SQLite."""
+        # AlertState.mark_triggered() now persists directly to SQLite
+        pass
 
     def _evaluate_condition(self, actual: float, condition: AlertCondition, threshold: float) -> bool:
         """Evaluate a condition against actual value and threshold."""
@@ -294,6 +286,8 @@ class AlertEngine:
         """Clean up resources."""
         if self._channel_manager:
             await self._channel_manager.close()
+        if self._state:
+            self._state.close()
         self._initialized = False
 
     def get_rule(self, name: str) -> Optional[AlertRule]:
@@ -310,11 +304,7 @@ class AlertEngine:
 
     def clear_cooldown(self, rule_name: str) -> bool:
         """Manually clear cooldown for a rule (for testing)."""
-        if rule_name in self._state.last_triggered:
-            del self._state.last_triggered[rule_name]
-            self._save_state()
-            return True
-        return False
+        return self._state.clear_cooldown(rule_name)
 
 
 def create_daily_metrics_from_costs(

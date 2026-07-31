@@ -241,7 +241,7 @@ def temp_dirs():
             "data_dir": data_dir,
             "rules_file": rules_file,
             "settings_file": settings_file,
-            "state_file": data_dir / "alert_state.json",
+            "state_file": ":memory:",  # Use in-memory SQLite for tests - no file locking issues
         }
 
 
@@ -253,7 +253,11 @@ def engine(temp_dirs):
         settings_file=temp_dirs["settings_file"],
         state_file=temp_dirs["state_file"],
     )
-    return AlertEngine(config)
+    eng = AlertEngine(config)
+    yield eng
+    # Cleanup
+    import asyncio
+    asyncio.run(eng.close())
 
 
 @pytest.fixture
@@ -434,7 +438,7 @@ class TestAlertEngineDeduplication:
         assert len(alerts2) == 0
 
     def test_cooldown_persists_to_file(self, engine, temp_dirs):
-        """Test that cooldown state persists to JSON file."""
+        """Test that cooldown state persists to SQLite file."""
         engine.initialize()
 
         metrics = create_test_metrics(total_cost=150.0)
@@ -443,12 +447,16 @@ class TestAlertEngineDeduplication:
         # Check state file was written
         assert temp_dirs["state_file"].exists()
 
-        with open(temp_dirs["state_file"], "r") as f:
-            state_data = json.load(f)
+        # Read from SQLite
+        import sqlite3
+        with sqlite3.connect(str(temp_dirs["state_file"])) as conn:
+            row = conn.execute(
+                "SELECT last_triggered FROM alert_cooldowns WHERE rule_name = ?",
+                ("daily_cost_breach",)
+            ).fetchone()
 
-        assert "daily_cost_breach" in state_data
-        # Timestamp should be recent
-        triggered_time = datetime.fromisoformat(state_data["daily_cost_breach"])
+        assert row is not None
+        triggered_time = datetime.fromisoformat(row[0])
         assert (datetime.utcnow() - triggered_time).total_seconds() < 10
 
     def test_cooldown_respected_after_restart(self, engine, temp_dirs):
