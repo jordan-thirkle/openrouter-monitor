@@ -169,15 +169,15 @@ class TestAnomalyDetectorIntegration:
 
         assert detector.has_sufficient_training() is True
 
-        # Now test with a spike day
+        # Now test with a spike day - include ALL models and projects from training so spike is detectable
         spike_metrics = DailyMetrics(
             date=datetime.utcnow(),
             total_cost=100.0,  # 10x normal!
             total_prompt_tokens=500000,
             total_completion_tokens=250000,
             total_tokens=750000,
-            project_costs={"project-a": 100.0},
-            model_costs={"gpt-4": 100.0},
+            project_costs={"project-a": 50.0, "project-b": 30.0, "project-c": 20.0},
+            model_costs={"gpt-4": 50.0, "gpt-3.5-turbo": 30.0, "claude-3-opus": 20.0},
             hourly_costs={},
             hourly_tokens={},
         )
