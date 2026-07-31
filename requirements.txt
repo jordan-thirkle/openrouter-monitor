@@ -1,0 +1,22 @@
+# OpenRouter Monitor - Requirements
+# Core dependencies
+aiohttp>=3.9.0
+pyyaml>=6.0.1
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+
+# Database
+# sqlite3 is in stdlib
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+
+# Optional: ML-based anomaly detection (Isolation Forest)
+# scikit-learn>=1.3.0
+
+# Development
+# black>=23.0.0
+# ruff>=0.1.0
+# mypy>=1.7.0
