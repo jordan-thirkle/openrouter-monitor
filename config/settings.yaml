@@ -1,0 +1,19 @@
+# Local development settings - DO NOT COMMIT
+# This file is gitignored. Copy from config/settings.yaml.example and fill in your values.
+
+api_key: "sk-or-v1-your-api-key-here"
+base_url: "https://openrouter.ai/api/v1"
+
+rate_limits:
+  rpm: 60
+  rph: 500
+
+retry:
+  max_attempts: 3
+  base_delay_seconds: 1.0
+  max_delay_seconds: 60.0
+  exponential_base: 2
+
+timeout_seconds: 30
+
+database_path: "data/monitor.db"

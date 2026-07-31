@@ -1,0 +1,23 @@
+# OpenRouter Monitor Configuration
+# Copy to settings.yaml and fill in your values
+
+api_key: "sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxx"  # Your OpenRouter API key
+base_url: "https://openrouter.ai/api/v1"      # OpenRouter API base URL
+
+# Rate limiting configuration (requests per minute / requests per hour)
+rate_limits:
+  rpm: 60
+  rph: 500
+
+# Retry configuration
+retry:
+  max_attempts: 3
+  base_delay_seconds: 1.0
+  max_delay_seconds: 60.0
+  exponential_base: 2
+
+# Request timeout in seconds
+timeout_seconds: 30
+
+# Database path (relative to project root)
+database_path: "data/monitor.db"

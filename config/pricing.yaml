@@ -1,0 +1,192 @@
+# OpenRouter Model Pricing Configuration
+# Synced weekly from OpenRouter API (https://openrouter.ai/api/v1/models)
+# Last updated: 2026-07-31
+# Currency: USD per 1K tokens
+#
+# Format:
+#   model_id:
+#     prompt: <price_per_1k_prompt_tokens>
+#     completion: <price_per_1k_completion_tokens>
+#     cached_prompt: <optional_price_per_1k_cached_prompt_tokens>
+#     updated: <ISO_timestamp>
+
+models:
+  # Anthropic models
+  "anthropic/claude-3.5-sonnet":
+    prompt: 0.003
+    completion: 0.015
+    updated: "2026-07-31T00:00:00Z"
+  "anthropic/claude-3.5-haiku":
+    prompt: 0.001
+    completion: 0.005
+    updated: "2026-07-31T00:00:00Z"
+  "anthropic/claude-3-opus":
+    prompt: 0.015
+    completion: 0.075
+    updated: "2026-07-31T00:00:00Z"
+  "anthropic/claude-3-sonnet":
+    prompt: 0.003
+    completion: 0.015
+    updated: "2026-07-31T00:00:00Z"
+  "anthropic/claude-3-haiku":
+    prompt: 0.00025
+    completion: 0.00125
+    updated: "2026-07-31T00:00:00Z"
+
+  # OpenAI models
+  "openai/gpt-4o":
+    prompt: 0.0025
+    completion: 0.01
+    updated: "2026-07-31T00:00:00Z"
+  "openai/gpt-4o-mini":
+    prompt: 0.00015
+    completion: 0.0006
+    updated: "2026-07-31T00:00:00Z"
+  "openai/gpt-4-turbo":
+    prompt: 0.01
+    completion: 0.03
+    updated: "2026-07-31T00:00:00Z"
+  "openai/gpt-4":
+    prompt: 0.03
+    completion: 0.06
+    updated: "2026-07-31T00:00:00Z"
+  "openai/gpt-3.5-turbo":
+    prompt: 0.0005
+    completion: 0.0015
+    updated: "2026-07-31T00:00:00Z"
+  "openai/o1-preview":
+    prompt: 0.015
+    completion: 0.06
+    updated: "2026-07-31T00:00:00Z"
+  "openai/o1-mini":
+    prompt: 0.003
+    completion: 0.012
+    updated: "2026-07-31T00:00:00Z"
+
+  # Google models
+  "google/gemini-pro-1.5":
+    prompt: 0.00125
+    completion: 0.005
+    updated: "2026-07-31T00:00:00Z"
+  "google/gemini-flash-1.5":
+    prompt: 0.000075
+    completion: 0.0003
+    updated: "2026-07-31T00:00:00Z"
+  "google/gemini-pro":
+    prompt: 0.0005
+    completion: 0.0015
+    updated: "2026-07-31T00:00:00Z"
+
+  # Meta models
+  "meta-llama/llama-3.1-405b-instruct":
+    prompt: 0.003
+    completion: 0.003
+    updated: "2026-07-31T00:00:00Z"
+  "meta-llama/llama-3.1-70b-instruct":
+    prompt: 0.0008
+    completion: 0.0008
+    updated: "2026-07-31T00:00:00Z"
+  "meta-llama/llama-3.1-8b-instruct":
+    prompt: 0.00018
+    completion: 0.00018
+    updated: "2026-07-31T00:00:00Z"
+  "meta-llama/llama-3-70b-instruct":
+    prompt: 0.0009
+    completion: 0.0009
+    updated: "2026-07-31T00:00:00Z"
+  "meta-llama/llama-3-8b-instruct":
+    prompt: 0.0002
+    completion: 0.0002
+    updated: "2026-07-31T00:00:00Z"
+
+  # Mistral models
+  "mistralai/mistral-large":
+    prompt: 0.004
+    completion: 0.012
+    updated: "2026-07-31T00:00:00Z"
+  "mistralai/mistral-medium":
+    prompt: 0.0027
+    completion: 0.0081
+    updated: "2026-07-31T00:00:00Z"
+  "mistralai/mistral-small":
+    prompt: 0.0002
+    completion: 0.0006
+    updated: "2026-07-31T00:00:00Z"
+  "mistralai/mistral-7b-instruct":
+    prompt: 0.00015
+    completion: 0.00015
+    updated: "2026-07-31T00:00:00Z"
+  "mistralai/mixtral-8x7b-instruct":
+    prompt: 0.0006
+    completion: 0.0006
+    updated: "2026-07-31T00:00:00Z"
+
+  # Cohere models
+  "cohere/command-r-plus":
+    prompt: 0.003
+    completion: 0.015
+    updated: "2026-07-31T00:00:00Z"
+  "cohere/command-r":
+    prompt: 0.0005
+    completion: 0.0015
+    updated: "2026-07-31T00:00:00Z"
+
+  # Other popular models
+  "qwen/qwen-2.5-72b-instruct":
+    prompt: 0.0005
+    completion: 0.0005
+    updated: "2026-07-31T00:00:00Z"
+  "qwen/qwen-2.5-32b-instruct":
+    prompt: 0.0003
+    completion: 0.0003
+    updated: "2026-07-31T00:00:00Z"
+  "deepseek/deepseek-chat":
+    prompt: 0.00014
+    completion: 0.00028
+    updated: "2026-07-31T00:00:00Z"
+  "deepseek/deepseek-coder":
+    prompt: 0.00014
+    completion: 0.00028
+    updated: "2026-07-31T00:00:00Z"
+  "nousresearch/hermes-3-llama-3.1-405b":
+    prompt: 0.003
+    completion: 0.003
+    updated: "2026-07-31T00:00:00Z"
+  "nousresearch/hermes-3-llama-3.1-70b":
+    prompt: 0.0008
+    completion: 0.0008
+    updated: "2026-07-31T00:00:00Z"
+
+# Fallback defaults for unknown models (per provider prefix)
+# Used when a model is not found in the models section above
+fallback_defaults:
+  "anthropic/":
+    prompt: 0.003
+    completion: 0.015
+  "openai/":
+    prompt: 0.005
+    completion: 0.015
+  "google/":
+    prompt: 0.001
+    completion: 0.004
+  "meta-llama/":
+    prompt: 0.001
+    completion: 0.001
+  "mistralai/":
+    prompt: 0.001
+    completion: 0.003
+  "cohere/":
+    prompt: 0.001
+    completion: 0.005
+  "qwen/":
+    prompt: 0.0005
+    completion: 0.0005
+  "deepseek/":
+    prompt: 0.0002
+    completion: 0.0004
+  "nousresearch/":
+    prompt: 0.001
+    completion: 0.001
+  "default":  # catch-all for any other model
+    prompt: 0.001
+    completion: 0.003
