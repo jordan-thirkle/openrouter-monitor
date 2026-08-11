@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "contract_version": "1.0.0",
+  "run_id": "cross-project-adoption-2026-08-12",
+  "state": "PARTIAL",
+  "phase": "contract-adoption",
+  "repository": "jordan-thirkle/openrouter-monitor",
+  "branch": "main",
+  "source_commit": "READ_ON_RESUME",
+  "last_verified_commit": null,
+  "event_cursor": 1,
+  "next_action": "Read local project instructions and establish source/build/browser/deployment evidence before claiming readiness.",
+  "active_leases": [],
+  "blockers": [
+    "Project-specific verification commands and deployment linkage have not yet been audited."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "contract_version": "1.0.0",
+  "repository": "jordan-thirkle/openrouter-monitor",
+  "status": "PARTIAL",
+  "source_state": "DISCOVERED_NOT_VERIFIED",
+  "build_state": "NOT_RUN",
+  "browser_state": "NOT_RUN",
+  "deployment_state": "UNKNOWN_UNVERIFIED",
+  "quality_state": "AMBER",
+  "completed": [
+    "Shared fail-closed contract bootstrapped additively."
+  ],
+  "pending": [
+    "Read project architecture and commands.",
+    "Run applicable deterministic and browser gates.",
+    "Verify hosting linkage before release language."
+  ],
+  "known_risks": [
+    "This adoption commit does not certify product quality, build health, or deployment."
+  ],
+  "next_action": "Start from .agents/session.json.next_action on the next run."
+}

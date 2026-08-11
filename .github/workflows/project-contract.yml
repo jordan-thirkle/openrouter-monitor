@@ -1,0 +1,32 @@
+name: Project contract
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-contract
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify durable project controls
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Verify contract files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s AGENTS.md
+          test -s .agents/project.yaml
+          test -s .agents/session.json
+          test -s .agents/handoff.json
+          test -s docs/FAILURE_REGISTER.md
+          test -s docs/agents/global-project-operating-contract.md
+          grep -Eqi 'source|deployment|failure|handoff|commit' AGENTS.md
+          echo "Durable project controls are present. Product/build/browser gates remain project-specific."
